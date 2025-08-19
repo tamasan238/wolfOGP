@@ -1,5 +1,7 @@
 # wolfOGP
 
+![Sample Image](sample.png)
+
 ## Install
 
 ```bash
