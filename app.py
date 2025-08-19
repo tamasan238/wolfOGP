@@ -1,27 +1,29 @@
 from flask import Flask, request, send_file
 from PIL import Image, ImageDraw, ImageFont
 import io
-# import textwrap
+from janome.tokenizer import Tokenizer
+
+tokenizer = Tokenizer()
 
 app = Flask(__name__)
 
-def wrap_text(text, font, max_width, draw):
+def wrap_text_by_morpheme(text, font, max_width, draw):
     lines = []
     current_line = ""
-    for char in text:  # 文字単位で処理
-        test_line = current_line + char
+    for token in tokenizer.tokenize(text):
+        word = token.surface
+        test_line = current_line + word
         bbox = draw.textbbox((0, 0), test_line, font=font)
         w = bbox[2] - bbox[0]
         if w <= max_width:
             current_line = test_line
         else:
-            lines.append(current_line)
-            current_line = char
+            if current_line:
+                lines.append(current_line)
+            current_line = word
     if current_line:
         lines.append(current_line)
     return lines
-
-
 
 @app.route("/ogp")
 def ogp():
@@ -42,17 +44,13 @@ def ogp():
     )
     bg = Image.alpha_composite(bg, overlay)
 
-    # try:
     font_title = ImageFont.truetype("fonts/Noto_Sans_JP/static/NotoSansJP-Regular.ttf", 60)
-    font_author = ImageFont.truetype("fonts/Noto_Sans_JP/static/NotoSansJP-Regular.ttf", 30)
-    # except:
-    #     font_title = ImageFont.load_default()
-    #     font_author = ImageFont.load_default()
+    font_author = ImageFont.truetype("fonts/Noto_Sans_JP/static/NotoSansJP-Regular.ttf", 40)
 
     draw = ImageDraw.Draw(bg)
     
     max_width = 1050
-    lines = wrap_text(title, font_title, max_width, draw)
+    lines = wrap_text_by_morpheme(title, font_title, max_width, draw)
     mask = font_title.getmask("あ")
     line_height = mask.size[1] + 10
     text_height = line_height * len(lines) - 10
@@ -63,7 +61,7 @@ def ogp():
         draw.text((bg.width/2, y_text), line, font=font_title, fill=(255,255,255), anchor="mm")
         y_text += line_height
     
-    draw.text((bg.width/2, bg.height/5*4), "wolfSSL Japan", font=font_author, fill=(255,255,255), anchor="mm")
+    draw.text((bg.width/2, bg.height/5*4), "wolfSSL Japan", font=font_author, fill=(200,200,200), anchor="mm")
 
     buf = io.BytesIO()
     bg.convert("RGB").save(buf, format="PNG")
