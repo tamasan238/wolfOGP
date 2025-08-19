@@ -44,8 +44,8 @@ def ogp():
     )
     bg = Image.alpha_composite(bg, overlay)
 
-    font_title = ImageFont.truetype("fonts/Noto_Sans_JP/static/NotoSansJP-Regular.ttf", 60)
-    font_author = ImageFont.truetype("fonts/Noto_Sans_JP/static/NotoSansJP-Regular.ttf", 40)
+    font_title = ImageFont.truetype("NotoSansJP-Regular.ttf", 60)
+    font_author = ImageFont.truetype("NotoSansJP-Regular.ttf", 40)
 
     draw = ImageDraw.Draw(bg)
     
