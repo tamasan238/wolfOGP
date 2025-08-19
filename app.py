@@ -26,7 +26,6 @@ def wrap_text(text, font, max_width, draw):
 @app.route("/ogp")
 def ogp():
     title = request.args.get("title", "Default Title")
-    author = request.args.get("author", "Unknown")
 
     try:
         bg = Image.open("bg.png").convert("RGBA")
@@ -43,18 +42,19 @@ def ogp():
     )
     bg = Image.alpha_composite(bg, overlay)
 
-    try:
-        font_title = ImageFont.truetype("fonts/Noto_Sans_JP/static/NotoSansJP-Regular.ttf", 60)
-        font_author = ImageFont.truetype("fonts/Noto_Sans_JP/static/NotoSansJP-Regular.ttf", 30)
-    except:
-        font_title = ImageFont.load_default()
-        font_author = ImageFont.load_default()
+    # try:
+    font_title = ImageFont.truetype("fonts/Noto_Sans_JP/static/NotoSansJP-Regular.ttf", 60)
+    font_author = ImageFont.truetype("fonts/Noto_Sans_JP/static/NotoSansJP-Regular.ttf", 30)
+    # except:
+    #     font_title = ImageFont.load_default()
+    #     font_author = ImageFont.load_default()
 
     draw = ImageDraw.Draw(bg)
     
     max_width = 1050
     lines = wrap_text(title, font_title, max_width, draw)
-    line_height = font_title.getsize("あ")[1] + 10 
+    mask = font_title.getmask("あ")
+    line_height = mask.size[1] + 10
     text_height = line_height * len(lines) - 10
 
     y_start = (bg.height - text_height) / 2
